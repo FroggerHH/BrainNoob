@@ -1,8 +1,8 @@
 ﻿namespace BrainNoob;
 
-class Program
+file static class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         if (args.Length == 0)
         {

@@ -14,7 +14,7 @@ Like TypeScript, BrainNoob turns into an ordinary BrainFuck.
 BrainNoob allows you to:
 
 - declare re-executable code snippets - methods;
-- declare re-executable code snippets - methods;
+- automatically clear memory cells;
 
 ### TODO
 
@@ -22,8 +22,6 @@ BrainNoob allows you to:
 - built-in libraries for character input/output
 
 ### Syntax
-
-Methods must be declared at the beginning of the file.
 
 Methods must be declared at the beginning of the file.
 
