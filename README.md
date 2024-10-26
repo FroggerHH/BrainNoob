@@ -1,0 +1,2 @@
+# BrainNoob
+ TypeScript for BrainFuck
