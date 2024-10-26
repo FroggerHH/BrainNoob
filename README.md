@@ -1,40 +1,42 @@
 # BrainNoob
 
-BrainNoob — это язык программирования, основанный на BrainFuck.
-Он расширяет возможности BrainFuck, добавляя новые функции, упрощающие жизнь разработчикам.
+Версия на [Русском](README_RU.md) 
 
-### Основные особенности
+BrainNoob is a programming language based on BrainFuck.
+It expands BrainFuck's capabilities by adding new features that make life easier for developers.
 
-В коде могут быть использованы любые не специальные символы. Это необходимо для имён методов.
+### Main Features
 
-Как и TypeScript, BrainNoob превращается в обыкновенный BrainFuck.
+Any non-special characters can be used in the code. This is necessary for method names.
 
-BrainNoob позволяет:
+Like TypeScript, BrainNoob turns into an ordinary BrainFuck.
 
-- объявлять переисполняемые фрагменты кода - методы;
-- объявлять переисполняемые фрагменты кода - методы;
+BrainNoob allows you to:
+
+- declare re-executable code snippets - methods;
+- declare re-executable code snippets - methods;
 
 ### TODO
 
-- разделение кода по файлам
-- встроенные библиотеки для ввода/вывода символов
+- splitting the code into files
+- built-in libraries for character input/output
 
-### Синтаксис
+### Syntax
 
-Методы должны быть объявлены в начале файла.
+Methods must be declared at the beginning of the file.
 
-Методы должны быть объявлены в начале файла.
+Methods must be declared at the beginning of the file.
 
-Тело метода выделяется при помощи оператора метода в начале и в конце. Пример:
+The method body is highlighted using the method operator at the beginning and at the end. Example:
 
 ```bn
 $h$  ++++++++  [>K+++++++++K<-]>.<        $h$
 ```
 
-Имя метода - `h`, тело - `++++++++  [>K+++++++++K<-]>.<`
+The method name is `h`, the body - `++++++++  [>K+++++++++K<-]>.<`
 
-ИВызов метода производится при помощи одинарного оператора метода: `$h$`.
+The method is called using a single method operator: `$h$`.
 
 
-### Примеры
-В файле `code.bn` написан рабочий скрипт на BrainNoob для вывода на экран фразы `Hello world`.
+### Examples
+There is a working script in the file `code.bn` in BrainNoob to display the phrase `Hello world` on the screen.
