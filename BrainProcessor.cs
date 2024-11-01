@@ -1,102 +1,119 @@
-﻿namespace BrainNoob;
+﻿using System.Text;
+
+namespace BrainNoob;
 
 public class BrainProcessor(string noobCode)
 {
-    const char CLEAR_MEMORY_OPERATOR = 'K';
-    const char FUNCTION_MARK = '$';
+    private const char ClearMemoryOperator = 'K';
+    private const char FunctionMark = '$';
+    private readonly Dictionary<string, string> _methods = new();
 
-    private readonly Dictionary<string, string> Methods = [];
-
-    /// <param name="noobCode">source code in BrainNoob language</param>
-    /// <returns>code in BrainFuck</returns>
+    /// <summary>
+    /// Processes BrainNoob code and converts it to Brainfuck.
+    /// </summary>
+    /// <returns>Converted Brainfuck code.</returns>
     public string Process()
     {
-        var charArr = noobCode.ToCharArray();
-        for (int i = 0; i < charArr.Length; i++)
+        var resultBuilder = new StringBuilder();
+        var codeLength = noobCode.Length;
+
+        for (int i = 0; i < codeLength; i++)
         {
-            var @char = charArr[i];
-            if (@char is not FUNCTION_MARK) continue;
+            var currentChar = noobCode[i];
 
-            var methodName =
-                new string(charArr.SkipWhile((_, id) => id <= i).TakeWhile(ch => ch is not FUNCTION_MARK).ToArray());
+            if (currentChar == FunctionMark)
+            {
+                var methodName = ExtractMethodName(ref i);
 
-            if (AppendMethod(methodName, ref i, ref charArr)) continue;
+                if (TryAppendMethod(resultBuilder, methodName)) continue;
 
-            if (MemoMethod(methodName, ref i, ref charArr)) continue;
+                DefineMethod(methodName, ref i);
+            }
+            else resultBuilder.Append(currentChar);
         }
 
-        return new string(charArr);
+        return resultBuilder.ToString();
     }
 
-    private bool MemoMethod(string methodName, ref int i, ref char[] charArr)
+    private string ExtractMethodName(ref int i)
     {
-        var startIndex = i;
+        var methodNameBuilder = new StringBuilder();
+        i++; // Move past initial FunctionMark
 
-        var afterMethodName =
-            new string(charArr.SkipWhile((_, id) => id < startIndex + methodName.Length + 2).ToArray());
-        var endIndex = afterMethodName.IndexOf(FUNCTION_MARK + methodName + FUNCTION_MARK,
-            StringComparison.InvariantCulture);
-        //TODO: throw exception if method is not closed (endIndex = -1)
-        var methodBody = afterMethodName[..endIndex];
-
-        var methodBodyEndIndex = i + methodBody.Length + (methodName.Length + 2) * 2;
-        var _i = i;
-        charArr = charArr.Where((_, id) => id < _i || id >= methodBodyEndIndex).ToArray();
-
-        ClearMethodMemoryAlocks(ref methodBody);
-        Methods.Add(methodName, methodBody + Environment.NewLine);
-        i--;
-        return true;
-    }
-
-    private void ClearMethodMemoryAlocks(ref string methodBody)
-    {
-        if (!methodBody.Contains(CLEAR_MEMORY_OPERATOR)) return;
-
-        var clearBody = methodBody;
-
-        var charArr = clearBody.ToCharArray();
-        bool isInClearBlock = false;
-        for (int i = 0; i < charArr.Length; i++)
+        while (i < noobCode.Length && noobCode[i] != FunctionMark)
         {
-            var @char = charArr[i];
-            if (@char is CLEAR_MEMORY_OPERATOR)
+            methodNameBuilder.Append(noobCode[i]);
+            i++;
+        }
+
+        return methodNameBuilder.ToString();
+    }
+
+    private bool TryAppendMethod(StringBuilder resultBuilder, string methodName)
+    {
+        if (_methods.TryGetValue(methodName, out var methodBody))
+        {
+            resultBuilder.Append(methodBody);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void DefineMethod(string methodName, ref int i)
+    {
+        var methodBodyBuilder = new StringBuilder();
+        i++; // Move past closing FunctionMark of methodName
+
+        while (i < noobCode.Length)
+        {
+            var methodFullTag = $"{FunctionMark}{methodName}{FunctionMark}";
+            if (noobCode[i] == FunctionMark && noobCode.Substring(i, methodName.Length + 2) == methodFullTag)
+            {
+                i += methodName.Length + 1; // Move past closing FunctionMark sequence
+                break;
+            }
+
+            methodBodyBuilder.Append(noobCode[i]);
+            i++;
+        }
+
+        var methodBody = methodBodyBuilder.ToString();
+        methodBody = ClearMethodMemoryBlocks(methodBody);
+        _methods[methodName] = methodBody;
+    }
+
+    private static string ClearMethodMemoryBlocks(string methodBody)
+    {
+        if (!methodBody.Contains(ClearMemoryOperator)) return methodBody;
+
+        var clearBodyBuilder = new StringBuilder(methodBody.Length);
+
+        bool isInClearBlock = false;
+        foreach (var ch in methodBody)
+        {
+            if (ch == ClearMemoryOperator)
             {
                 isInClearBlock = !isInClearBlock;
                 continue;
             }
 
-            if (!isInClearBlock) continue;
-
-            charArr[i] = @char switch
+            if (isInClearBlock)
             {
-                '+' => '-',
-                '-' => '+',
-                _ => throw new ArgumentOutOfRangeException($"Operator {@char} is not supported by K operator.")
-            };
+                clearBodyBuilder.Append(ch switch
+                {
+                    '+' => '-',
+                    '-' => '+',
+                    _ => throw new ArgumentOutOfRangeException($"Operator {ch} is not supported by K operator.")
+                });
+            }
+            else
+            {
+                clearBodyBuilder.Append(ch);
+            }
         }
 
-        clearBody = new string(charArr);
-
-        methodBody += ' ';
-        methodBody += clearBody;
-
-        methodBody = methodBody.Replace(new string([CLEAR_MEMORY_OPERATOR]), string.Empty);
-    }
-
-    private bool AppendMethod(string methodName, ref int i, ref char[] charArr)
-    {
-        if (Methods.TryGetValue(methodName, out var method))
-        {
-            var methodNameEndIndex = i + methodName.Length + 2; // 2 is length or opening $ + closing $
-            var _i = i;
-            charArr = charArr.Where((_, id) => id < _i || id >= methodNameEndIndex).ToArray();
-            charArr = charArr.InsertAt(method.ToCharArray(), i);
-
-            i += method.Length - 1;
-            return true;
-        }
-
-        return false;
+        methodBody += ' ' + clearBodyBuilder.ToString();
+        return methodBody;
     }
 }
