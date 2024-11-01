@@ -11,7 +11,7 @@ file static class Program
         }
 
         string noobCode = ReadFile(args[0]);
-        string fuckCode = BrainProcessor.Process(noobCode);
+        string fuckCode = new BrainProcessor(noobCode).Process();
         Console.WriteLine(fuckCode);
     }
 

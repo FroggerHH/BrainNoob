@@ -1,13 +1,15 @@
 ﻿namespace BrainNoob;
 
-public static class BrainProcessor
+public class BrainProcessor(string noobCode)
 {
     const char CLEAR_MEMORY_OPERATOR = 'K';
     const char FUNCTION_MARK = '$';
 
-    private static readonly Dictionary<string, string> Methods = [];
+    private readonly Dictionary<string, string> Methods = [];
 
-    public static string Process(string noobCode)
+    /// <param name="noobCode">source code in BrainNoob language</param>
+    /// <returns>code in BrainFuck</returns>
+    public string Process()
     {
         var charArr = noobCode.ToCharArray();
         for (int i = 0; i < charArr.Length; i++)
@@ -26,7 +28,7 @@ public static class BrainProcessor
         return new string(charArr);
     }
 
-    private static bool MemoMethod(string methodName, ref int i, ref char[] charArr)
+    private bool MemoMethod(string methodName, ref int i, ref char[] charArr)
     {
         var startIndex = i;
 
@@ -47,7 +49,7 @@ public static class BrainProcessor
         return true;
     }
 
-    private static void ClearMethodMemoryAlocks(ref string methodBody)
+    private void ClearMethodMemoryAlocks(ref string methodBody)
     {
         if (!methodBody.Contains(CLEAR_MEMORY_OPERATOR)) return;
 
@@ -82,7 +84,7 @@ public static class BrainProcessor
         methodBody = methodBody.Replace(new string([CLEAR_MEMORY_OPERATOR]), string.Empty);
     }
 
-    private static bool AppendMethod(string methodName, ref int i, ref char[] charArr)
+    private bool AppendMethod(string methodName, ref int i, ref char[] charArr)
     {
         if (Methods.TryGetValue(methodName, out var method))
         {
